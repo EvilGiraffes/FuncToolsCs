@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FuncToolsCs", "FuncToolsCs\FuncToolsCs.csproj", "{52B88EB7-E2AD-41EC-A05E-F141AF570FB0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{15F64C9B-521C-4F99-BF2C-257D0693D697}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		LICENSE.txt = LICENSE.txt
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FuncToolsCs.Tests", "FuncToolsCs.Tests\FuncToolsCs.Tests.csproj", "{57D88F57-1CB7-4092-BC02-3980F07E2183}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{52B88EB7-E2AD-41EC-A05E-F141AF570FB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52B88EB7-E2AD-41EC-A05E-F141AF570FB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52B88EB7-E2AD-41EC-A05E-F141AF570FB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52B88EB7-E2AD-41EC-A05E-F141AF570FB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57D88F57-1CB7-4092-BC02-3980F07E2183}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57D88F57-1CB7-4092-BC02-3980F07E2183}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57D88F57-1CB7-4092-BC02-3980F07E2183}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57D88F57-1CB7-4092-BC02-3980F07E2183}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {63BEB39E-1495-42C6-8206-0857615E400F}
+	EndGlobalSection
+EndGlobal
