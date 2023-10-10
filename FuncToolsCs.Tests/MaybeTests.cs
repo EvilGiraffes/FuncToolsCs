@@ -1,4 +1,6 @@
-﻿namespace FuncToolsCs.Tests;
+﻿using FuncToolsCs.Errors;
+
+namespace FuncToolsCs.Tests;
 public class MaybeTests
 {
     [Fact]
@@ -119,6 +121,20 @@ public class MaybeTests
     {
         Maybe<string> systemUnderTest = Maybe.Some("Hello world!");
         systemUnderTest.Unwrap().Should().Be("Hello world!");
+    }
+    [Fact]
+    public void UnwrapGuaranteed_None_ThrowsException()
+    {
+        Maybe<int> systemUnderTest = Maybe.None<int>();
+        Action act = () => systemUnderTest.UnwrapGuaranteed(Maybe.None<string>());
+        act.Should().Throw<UnwrappingFailed>();
+    }
+    [Fact]
+    public void UnwrapGuaranteed_Some_ThrowsException()
+    {
+        Maybe<int> systemUnderTest = Maybe.Some(5);
+        Action act = () => systemUnderTest.UnwrapGuaranteed(Maybe.None<string>());
+        act.Should().NotThrow();
     }
     [Fact]
     public void UnwrapResult_None_CallsFactory()

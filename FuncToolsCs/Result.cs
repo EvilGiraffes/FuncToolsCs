@@ -11,12 +11,12 @@ public readonly struct Result<T, TError>
         => !IsError;
     readonly T? value;
     readonly TError? error;
-    Result(T value)
+    Result(T value) : this()
     {
         this.value = value;
         IsError = false;
     }
-    Result(TError error)
+    Result(TError error) : this()
     {
         this.error = error;
         IsError = true;

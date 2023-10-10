@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
+using FuncToolsCs.Errors;
+
 namespace FuncToolsCs;
 public static class Maybe
 {
@@ -19,7 +21,7 @@ public readonly struct Maybe<T>
     public bool IsSome
         => !IsNone;
     readonly T? value;
-    Maybe(T? value, bool isEmpty)
+    Maybe(T? value, bool isEmpty) : this()
     {
         this.value = value;
         IsNone = isEmpty;
@@ -54,6 +56,20 @@ public readonly struct Maybe<T>
         => IsNone
         ? default
         : value;
+    public T UnwrapGuaranteed(Maybe<string> reason)
+    {
+        if (IsSome)
+            return value;
+        string errorFormat = "The guarantee failed and there is no value inside the maybe{0}";
+        string fullReason = reason.Match(
+            someReason => string.Format(errorFormat, $": {someReason}."),
+            () => string.Format(errorFormat, '.'));
+        throw new UnwrappingFailed(fullReason);
+    }
+    public T UnwrapGuaranteed(string reason)
+        => UnwrapGuaranteed(Maybe<string>.Some(reason));
+    public T UnwrapGuaranteed()
+        => UnwrapGuaranteed(Maybe<string>.None());
     public Result<T, TError> UnwrapResult<TError>(Func<TError> exceptionFactory)
         where TError : Exception
     {
