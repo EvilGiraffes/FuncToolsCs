@@ -1,4 +1,6 @@
-﻿namespace FuncToolsCs;
+﻿using FuncToolsCs.Errors;
+
+namespace FuncToolsCs;
 public static class ResultOfMaybeExt
 {
     public static Maybe<Result<T, TError>> Transpose<T, TError>(this Result<Maybe<T>, TError> result)
@@ -46,6 +48,11 @@ public static class ResultOfMaybeExt
         where T : notnull
         where TError : Exception
         => result.Map(maybe => maybe.Filter(filter));
+    public static Result<Maybe<(T, TOther)>, TError> NestedZip<T, TOther, TError>(this Result<Maybe<T>, TError> result, Maybe<TOther> other)
+        where T : notnull
+        where TOther : notnull
+        where TError : Exception
+        => result.Map(maybe => maybe.Zip(other));
     public static Result<TReturn, TError> NestedMatch<T, TReturn, TError>(this Result<Maybe<T>, TError> result, Func<T, TReturn> onSome, TReturn onNone)
         where T : notnull
         where TError : Exception
@@ -58,16 +65,13 @@ public static class ResultOfMaybeExt
         where T : notnull
         where TError : Exception
         => result.Map(maybe => maybe.Unwrap());
-    public static Result<T, TReturnError> NestedUnwrapResult<T, TError, TReturnError>(this Result<Maybe<T>, TError> result, Func<Maybe<TError>, TReturnError> errorMap)
+    public static Result<T, TError> NestedUnwrapResult<T, TError>(this Result<Maybe<T>, TError> result, Func<MaybeIsNone, TError> onError)
         where T : notnull
         where TError : Exception
-        where TReturnError : Exception
-        => result.BindOrMapError(
-            maybe => maybe.UnwrapResult(
-                () => errorMap(
-                    Maybe.None<TError>())),
-            error => errorMap(
-                Maybe.Some(error)));
+        => result.Bind(maybe =>
+        maybe
+        .UnwrapResult()
+        .MapError(onError));
     public static Result<T, TError> NestedUnwrapOrThrow<T, TError, TThrownError>(this Result<Maybe<T>, TError> result, Func<TThrownError> exceptionFactory)
         where T : notnull
         where TError : Exception

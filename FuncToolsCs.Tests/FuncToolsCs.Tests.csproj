@@ -29,6 +29,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\FuncToolsCs.FluentAssertions\FuncToolsCs.FluentAssertions.csproj" />
 		<ProjectReference Include="..\FuncToolsCs\FuncToolsCs.csproj" />
 	</ItemGroup>
 

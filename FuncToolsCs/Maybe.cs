@@ -11,6 +11,17 @@ public static class Maybe
     public static Maybe<T> None<T>()
         where T : notnull
         => Maybe<T>.None();
+    public static Maybe<T> From<T>(T? value)
+        where T : class
+        => value is null
+        ? None<T>()
+        : Some(value);
+    public static Maybe<T> Take<T>(ref Maybe<T> from)
+        where T : notnull
+        => Maybe<T>.Take(ref from);
+    public static Maybe<T> TakeIf<T>(ref Maybe<T> from, Predicate<T> filter)
+        where T : notnull
+        => Maybe<T>.TakeIf(ref from, filter);
 }
 public readonly struct Maybe<T>
     where T : notnull
@@ -44,6 +55,13 @@ public readonly struct Maybe<T>
             return None();
         return this;
     }
+    public Maybe<(T, TOther)> Zip<TOther>(Maybe<TOther> other)
+        where TOther : notnull
+    {
+        if (IsNone || !other.TryUnwrap(out TOther? unwrapped))
+            return Maybe<(T, TOther)>.None();
+        return Maybe<(T, TOther)>.Some((value, unwrapped));
+    }
     public TReturn Match<TReturn>(Func<T, TReturn> onSome, TReturn onNone)
         => IsNone
         ? onNone
@@ -56,26 +74,21 @@ public readonly struct Maybe<T>
         => IsNone
         ? default
         : value;
-    public T UnwrapGuaranteed(Maybe<string> reason)
+    public bool TryUnwrap([NotNullWhen(true)] out T? value)
     {
-        if (IsSome)
-            return value;
-        string errorFormat = "The guarantee failed and there is no value inside the maybe{0}";
-        string fullReason = reason.Match(
-            someReason => string.Format(errorFormat, $": {someReason}."),
-            () => string.Format(errorFormat, '.'));
-        throw new UnwrappingFailed(fullReason);
+        if (IsNone)
+        {
+            value = default;
+            return false;
+        }
+        value = this.value;
+        return true;
     }
-    public T UnwrapGuaranteed(string reason)
-        => UnwrapGuaranteed(Maybe<string>.Some(reason));
-    public T UnwrapGuaranteed()
-        => UnwrapGuaranteed(Maybe<string>.None());
-    public Result<T, TError> UnwrapResult<TError>(Func<TError> exceptionFactory)
-        where TError : Exception
+    public Result<T, MaybeIsNone> UnwrapResult()
     {
         if (IsSome)
             return value;
-        return exceptionFactory();
+        return new MaybeIsNone();
     }
     public T UnwrapOrThrow<TError>(Func<TError> exceptionFactory)
         where TError : Exception
@@ -92,8 +105,25 @@ public readonly struct Maybe<T>
         => IsNone
         ? defaultValueFactory()
         : value;
-    public static Maybe<T> Some(T value)
+    internal static Maybe<T> Take(ref Maybe<T> from)
+    {
+        if (!from.TryUnwrap(out T? value))
+            return from;
+        from = Maybe<T>.None();
+        return Maybe<T>.Some(
+            value);
+    }
+    internal static Maybe<T> TakeIf(ref Maybe<T> from, Predicate<T> filter)
+    {
+        if (!from.TryUnwrap(out T? value))
+            return from;
+        if (!filter(value))
+            return Maybe<T>.None();
+        from = Maybe<T>.None();
+        return Maybe<T>.Some(value);
+    }
+    internal static Maybe<T> Some(T value)
         => new(value, false);
-    public static Maybe<T> None()
+    internal static Maybe<T> None()
         => new(default, true);
 }

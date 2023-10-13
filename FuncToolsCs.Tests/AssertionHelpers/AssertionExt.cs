@@ -1,6 +1,6 @@
 ﻿using FluentAssertions.Execution;
 
-namespace FuncToolsCs.Tests;
+namespace FuncToolsCs.Tests.AssertionHelpers;
 static class AssertionExt
 {
     public static AssertionScope ForCondition(this AssertionScope scope, Func<bool> predicate)

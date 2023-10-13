@@ -1,11 +1,23 @@
-﻿namespace FuncToolsCs;
+﻿using FuncToolsCs.Errors;
+
+namespace FuncToolsCs;
 public static class ResultIteratorEx
 {
-    public static Result<IEnumerable<TReturnItem>, TError> Iterate<TItem, TError, TEnumerable, TReturnItem>(this Result<TEnumerable, TError> result, Func<TItem, TReturnItem> map)
+    public static Result<IEnumerable<TReturnItem>, TError> Iterate<TItem, TError, TEnumerable, TReturnItem>(this Result<TEnumerable, TError> result, Func<TItem, Maybe<TReturnItem>> map)
+        where TError : Exception
+        where TEnumerable : IEnumerable<TItem>
+        where TReturnItem : notnull
+        => result.Map(enumerable => MaybeEnumeration.Iterate(enumerable, map));
+    public static Result<IEnumerable<TReturnItem>, TError> Iterate<TItem, TError, TEnumerable, TReturnItem>(this Result<TEnumerable, TError> result, Func<TItem, int, Maybe<TReturnItem>> map)
+        where TError : Exception
+        where TEnumerable : IEnumerable<TItem>
+        where TReturnItem : notnull
+    => result.Map(enumerable => MaybeEnumeration.Iterate(enumerable, map));
+    public static Result<IEnumerable<TReturnItem>, TError> IterateMap<TItem, TError, TEnumerable, TReturnItem>(this Result<TEnumerable, TError> result, Func<TItem, TReturnItem> map)
         where TEnumerable : IEnumerable<TItem>
         where TError : Exception
         => result.Map(enumerable => enumerable.Select(map));
-    public static Result<IEnumerable<TReturnItem>, TError> Iterate<TItem, TError, TEnumerable, TReturnItem>(this Result<TEnumerable, TError> result, Func<TItem, int, TReturnItem> map)
+    public static Result<IEnumerable<TReturnItem>, TError> IterateMap<TItem, TError, TEnumerable, TReturnItem>(this Result<TEnumerable, TError> result, Func<TItem, int, TReturnItem> map)
         where TEnumerable : IEnumerable<TItem>
         where TError : Exception
         => result.Map(enumerable => enumerable.Select(map));
@@ -26,10 +38,12 @@ public static class ResultIteratorEx
         where TError : Exception
         where TReturnItem : notnull
         => result.Map(enumerable =>
-        enumerable
-        .Select(filter)
-        .Where(item => item.IsSome)
-        .Select(item => item.UnwrapGuaranteed()));
+            enumerable
+            .Select(filter)
+            .Where(item => item.IsSome)
+            .Select(item =>
+                item.UnwrapOrThrow(
+                    () => new UnReachable())));
     public static Result<TAccumelate, TError> IterateFold<TItem, TError, TAccumelate, TEnumerable>(this Result<TEnumerable, TError> result, TAccumelate seed, Func<TAccumelate, TItem, TAccumelate> accumelate)
         where TEnumerable : IEnumerable<TItem>
         where TError : Exception

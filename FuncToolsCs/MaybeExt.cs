@@ -1,8 +1,9 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace FuncToolsCs;
+﻿namespace FuncToolsCs;
 public static class MaybeExt
 {
+    public static Maybe<T> ToMaybe<T>(this T? value)
+        where T : class
+        => Maybe.From(value);
     public static Maybe<T> Flatten<T>(this Maybe<Maybe<T>> maybe)
         where T : notnull
         => maybe.Match(
@@ -14,16 +15,5 @@ public static class MaybeExt
         => maybe.Match(
             Result<T, TError>.Ok,
             () => Result<T, TError>.Error(onNone()));
-    public static bool TryGetSome<T>(this Maybe<T> maybe, [NotNullWhen(true)] out T? result)
-        where T : notnull
-    {
-        if (maybe.IsNone)
-        {
-            result = default;
-            return false;
-        }
-        result = maybe.UnwrapGuaranteed();
-        return true;
-    }
 }
 

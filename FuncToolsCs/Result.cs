@@ -34,7 +34,9 @@ public readonly struct Result<T, TError>
         => IsError
         ? new Result<TReturn, TError>(error)
         : binder(value);
-    public Result<TReturn, TReturnError> BindOrMapError<TReturn, TReturnError>(Func<T, Result<TReturn, TReturnError>> binder, Func<TError, TReturnError> onError)
+    public Result<TReturn, TReturnError> BindOrMapError<TReturn, TReturnError>(
+        Func<T, Result<TReturn, TReturnError>> binder,
+        Func<TError, TReturnError> onError)
         where TReturnError : Exception
         => IsError
         ? new Result<TReturn, TReturnError>(onError(error))
