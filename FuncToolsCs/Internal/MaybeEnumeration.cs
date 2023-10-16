@@ -1,4 +1,4 @@
-﻿namespace FuncToolsCs;
+﻿namespace FuncToolsCs.Internal;
 
 static class MaybeEnumeration
 {

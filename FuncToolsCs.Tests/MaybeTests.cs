@@ -1,4 +1,6 @@
-﻿namespace FuncToolsCs.Tests;
+﻿using FuncToolsCs.Errors;
+
+namespace FuncToolsCs.Tests;
 public class MaybeTests
 {
     [Fact]
@@ -37,7 +39,7 @@ public class MaybeTests
     public void Filter_None_None()
     {
         Maybe<int> systemUnderTest = Maybe.None<int>();
-        Predicate<int> predicate = x => x > 0;
+        Func<int, bool> predicate = x => x > 0;
         systemUnderTest
             .Filter(predicate)
             .Should()
@@ -47,7 +49,7 @@ public class MaybeTests
     public void Filter_SomePredicateFalse_None()
     {
         Maybe<int> systemUnderTest = Maybe.Some(0);
-        Predicate<int> predicate = x => x > 0;
+        Func<int, bool> predicate = x => x > 0;
         systemUnderTest
             .Filter(predicate)
             .Should()
@@ -57,7 +59,7 @@ public class MaybeTests
     public void Filter_SomePredicateTrue_SomeT()
     {
         Maybe<int> systemUnderTest = Maybe.Some(1);
-        Predicate<int> predicate = x => x > 0;
+        Func<int, bool> predicate = x => x > 0;
         systemUnderTest
             .Filter(predicate)
             .Should()
@@ -141,6 +143,20 @@ public class MaybeTests
         noneMock.DidNotReceive().Invoke();
     }
     [Fact]
+    public void Expect_None_Throws()
+    {
+        Maybe<int> systemUnderTest = Maybe.None<int>();
+        Action act = () => systemUnderTest.Expect();
+        act.Should().Throw<MaybeIsNone>();
+    }
+    [Fact]
+    public void Expect_Some_DoesNotThrow()
+    {
+        Maybe<int> systemUnderTest = Maybe.Some(1);
+        Action act = () => systemUnderTest.Expect();
+        act.Should().NotThrow();
+    }
+    [Fact]
     public void Unwrap_None_GivesNull()
     {
         Maybe<string> systemUnderTest = Maybe.None<string>();
@@ -157,6 +173,38 @@ public class MaybeTests
             .Unwrap()
             .Should()
             .Be("Hello world!");
+    }
+    [Fact]
+    public void TryUnwrap_None_False()
+    {
+        Maybe<int> systemUnderTest = Maybe.None<int>();
+        systemUnderTest
+            .TryUnwrap(out _)
+            .Should()
+            .BeFalse();
+    }
+    [Fact]
+    public void TryUnwrap_None_Null()
+    {
+        Maybe<string> systemUnderTest = Maybe.None<string>();
+        _ = systemUnderTest.TryUnwrap(out string? actual);
+        actual.Should().BeNull();
+    }
+    [Fact]
+    public void TryUnwrap_Some_True()
+    {
+        Maybe<int> systemUnderTest = Maybe.Some(1);
+        systemUnderTest
+            .TryUnwrap(out _)
+            .Should()
+            .BeTrue();
+    }
+    [Fact]
+    public void TryUnwrap_Some_Value()
+    {
+        Maybe<string> systemUnderTest = Maybe.Some("Hello World!");
+        _ = systemUnderTest.TryUnwrap(out string? actual);
+        actual.Should().Be("Hello World!");
     }
     [Fact]
     public void UnwrapResult_None_CallsFactory()

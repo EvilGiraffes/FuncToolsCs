@@ -1,7 +1,9 @@
 ﻿namespace FuncToolsCs;
 public static class ResultExt
 {
-    public static Result<T, TInnerError> Flatten<T, TError, TInnerError>(this Result<Result<T, TInnerError>, TError> result, Func<TError, TInnerError> onError)
+    public static Result<T, TInnerError> Flatten<T, TError, TInnerError>(
+        this Result<Result<T, TInnerError>, TError> result,
+        Func<TError, TInnerError> onError)
         where TError : Exception
         where TInnerError : Exception
         => result.Match(
