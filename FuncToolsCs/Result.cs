@@ -1,12 +1,22 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
+using FuncToolsCs.Errors;
+
 namespace FuncToolsCs;
+public static class UnitResult
+{
+    public static Result<Unit, TError> Ok<TError>()
+        => Unit.Instance;
+    public static Result<Unit, TError> Error<TError>(TError error)
+        => error;
+}
 public readonly struct Result<T, TError>
-    where TError : Exception
 {
     [MemberNotNullWhen(true, nameof(error))]
     [MemberNotNullWhen(false, nameof(value))]
     public bool IsError { get; }
+    [MemberNotNullWhen(false, nameof(error))]
+    [MemberNotNullWhen(true, nameof(value))]
     public bool IsOk
         => !IsError;
     readonly T? value;
@@ -26,7 +36,6 @@ public readonly struct Result<T, TError>
         ? new Result<TReturn, TError>(error)
         : new Result<TReturn, TError>(map(value));
     public Result<T, TReturnError> MapError<TReturnError>(Func<TError, TReturnError> map)
-        where TReturnError : Exception
         => IsError
         ? new Result<T, TReturnError>(map(error))
         : new Result<T, TReturnError>(value);
@@ -37,19 +46,45 @@ public readonly struct Result<T, TError>
     public Result<TReturn, TReturnError> BindOrMapError<TReturn, TReturnError>(
         Func<T, Result<TReturn, TReturnError>> binder,
         Func<TError, TReturnError> onError)
-        where TReturnError : Exception
         => IsError
         ? new Result<TReturn, TReturnError>(onError(error))
         : binder(value);
+    public Result<T, TError> Handle(Action<TError> onError)
+    {
+        if (IsError)
+            onError(error);
+        return this;
+    }
+    public Result<T, TError> Inspect(Action<T> onOk)
+    {
+        if (IsOk)
+            onOk(value);
+        return this;
+    }
     public TReturn Match<TReturn>(Func<T, TReturn> onOk, Func<TError, TReturn> onError)
         => IsError
         ? onError(error)
         : onOk(value);
     public T Unwrap()
     {
+        if (IsOk)
+            return value;
+        if (error is Exception exc)
+            throw exc;
+        throw new ResultIsError<TError>()
+        {
+            Error = error,
+        };
+    }
+    public bool TryUnwrap([NotNullWhen(true)] out T? result)
+    {
         if (IsError)
-            throw error;
-        return value;
+        {
+            result = default;
+            return false;
+        }
+        result = value;
+        return true;
     }
     public T UnwrapOrThrow<TMappedError>(Func<TError, TMappedError> onError)
         where TMappedError : Exception

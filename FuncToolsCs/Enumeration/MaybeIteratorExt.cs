@@ -1,8 +1,8 @@
 ﻿using FuncToolsCs.Internal;
 
-namespace FuncToolsCs;
+namespace FuncToolsCs.Enumeration;
 
-static class MaybeIteratorExt
+public static class MaybeIteratorExt
 {
     public static IEnumerable<TItem> Enumerable<TItem>(this Maybe<IEnumerable<TItem>> maybe)
         => maybe.UnwrapOr(() => System.Linq.Enumerable.Empty<TItem>());

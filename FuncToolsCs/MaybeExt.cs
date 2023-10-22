@@ -4,6 +4,14 @@ public static class MaybeExt
     public static Maybe<T> ToMaybe<T>(this T? value)
         where T : class
         => Maybe.From(value);
+    public static Maybe<(T, TOther)> Zip<T, TOther>(this Maybe<T> maybe, Maybe<TOther> other)
+        where T : notnull
+        where TOther : notnull
+    {
+        if (!maybe.TryUnwrap(out T? value) || !other.TryUnwrap(out TOther? otherValue))
+            return Maybe<(T, TOther)>.None();
+        return Maybe<(T, TOther)>.Some((value, otherValue));
+    }
     public static Maybe<T> Flatten<T>(this Maybe<Maybe<T>> maybe)
         where T : notnull
         => maybe.Match(

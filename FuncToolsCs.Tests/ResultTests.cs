@@ -1,3 +1,4 @@
+using FuncToolsCs.Errors;
 using FuncToolsCs.Tests.AssertionHelpers;
 
 namespace FuncToolsCs.Tests;
@@ -94,19 +95,73 @@ public class ResultTests
         bindMock.Received(1).Invoke(Arg.Any<int>());
         onErrorMock.DidNotReceive().Invoke(Arg.Any<IndexOutOfRangeException>());
     }
+    [Fact(Skip = "Not implemented")]
+    public void Handle_Error_HandlerCalled()
+    {
+
+    }
+    [Fact(Skip = "Not implemented")]
+    public void Handle_NoError_HandlerNotCalled()
+    {
+
+    }
+    [Fact(Skip = "Not implemented")]
+    public void Inspect_Error_InspectorNotCalled()
+    {
+
+    }
+    [Fact(Skip = "Not implemented")]
+    public void Inspect_NoError_InspectorCalled()
+    {
+
+    }
     [Fact]
-    public void Unwrap_Error_ThrowsError()
+    public void Unwrap_ExceptionError_ThrowsException()
     {
         Result<int, Exception> systemUnderTest = new Exception();
         Action act = () => systemUnderTest.Unwrap();
         act.Should().Throw<Exception>();
     }
     [Fact]
-    public void Unwrap_NoError_ReturnsTAndDoesNotThrow()
+    public void Unwrap_NoExceptionError_ReturnsTAndDoesNotThrow()
     {
         Result<int, Exception> systemUnderTest = 1;
         Func<int> act = systemUnderTest.Unwrap;
         act.Should().HaveValueBe(1).And.NotThrow();
+    }
+    [Fact]
+    public void Unwrap_NonExceptionError_ThrowsDefaultException()
+    {
+        Result<int, string> systemUnderTest = "Error!";
+        Action act = () => systemUnderTest.Unwrap();
+        act.Should().ThrowExactly<ResultIsError<string>>();
+    }
+    [Fact]
+    public void Unwrap_NoNonExceptionError_ReturnsTAndDoesNotThrow()
+    {
+        Result<int, string> systemUnderTest = 1;
+        Func<int> act = systemUnderTest.Unwrap;
+        act.Should().HaveValueBe(1).And.NotThrow();
+    }
+    [Fact(Skip = "Not implemented")]
+    public void TryUnwrap_Error_False()
+    {
+
+    }
+    [Fact(Skip = "Not implemented")]
+    public void TryUnwrap_NoError_True()
+    {
+
+    }
+    [Fact(Skip = "Not implemented")]
+    public void TryUnwrap_Error_Null()
+    {
+
+    }
+    [Fact(Skip = "Not implemented")]
+    public void TryUnwrap_NoError_T()
+    {
+
     }
     [Fact]
     public void UnwrapOrThrow_Error_ThrowsMappedException()

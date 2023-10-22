@@ -11,6 +11,13 @@ public static class Maybe
     public static Maybe<T> None<T>()
         where T : notnull
         => Maybe<T>.None();
+    public static Maybe<T> SomeIf<T>(T value, Func<T, bool> predicate)
+        where T : notnull
+    {
+        if (predicate(value))
+            return Some(value);
+        return None<T>();
+    }
     public static Maybe<T> From<T>(T? value)
         where T : class
         => value is null
@@ -55,12 +62,17 @@ public readonly struct Maybe<T>
             return None();
         return this;
     }
-    public Maybe<(T, TOther)> Zip<TOther>(Maybe<TOther> other)
-        where TOther : notnull
+    public Maybe<T> Handle(Action onNone)
     {
-        if (IsNone || other.IsNone)
-            return Maybe<(T, TOther)>.None();
-        return Maybe<(T, TOther)>.Some((value, other.value));
+        if (IsNone)
+            onNone();
+        return this;
+    }
+    public Maybe<T> Inspect(Action<T> onSome)
+    {
+        if (IsSome)
+            onSome(value);
+        return this;
     }
     public TReturn Match<TReturn>(Func<T, TReturn> onSome, TReturn onNone)
         => IsNone
